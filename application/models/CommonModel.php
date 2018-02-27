@@ -1,5 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-class Common_model extends CI_Model {
+class CommonModel extends CI_Model {
   public function __construct() {
     $this->load->database();
     $this->load->helper('string');

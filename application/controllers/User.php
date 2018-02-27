@@ -5,8 +5,8 @@ require APPPATH . 'libraries/REST_Controller.php';
 class User extends REST_Controller {
 	public function __construct() {
 		parent::__construct();
-    $this->load->model('User_model');
-    $this->load->model('Common_model');
+    $this->load->model('UserModel');
+    $this->load->model('CommonModel');
     $this->load->library('form_validation');
     $this->load->helper('url');
 	}
@@ -29,11 +29,10 @@ class User extends REST_Controller {
   }
   public function RegisterUser_validator($params) {
     $this->form_validation->set_data($params);
-    $this->form_validation->set_rules('name', 'name','trim|required');
-    $this->form_validation->set_rules('mobile', 'mobile','trim|required|is_natural_no_zero|exact_length[10]|is_unique[user.mobile]',array('is_natural_no_zero'=>'Mobile number must have digits only','exact_length'=>'mobile number must be 10 digits long','is_unique'=>'mobile number already existed'));
-    $this->form_validation->set_rules('password', 'password','trim|required');
-    $this->form_validation->set_rules('password_conf', 'confirm password ','trim|required|matches[password]');
-    $this->form_validation->set_rules('email', 'email','trim|required|valid_email|is_unique[user.email]');
+    $this->form_validation->set_rules('Name', 'Name','trim|required');
+    $this->form_validation->set_rules('Mobile', 'Mobile','trim|required|is_natural_no_zero|exact_length[10]',array('is_natural_no_zero'=>'Mobile number must have digits only','exact_length'=>'mobile number must be 10 digits long'));
+    $this->form_validation->set_rules('Password', 'Password','trim|required');
+    $this->form_validation->set_rules('Email', 'Email','trim|required|valid_email');
     if ($this->form_validation->run() == FALSE){
       foreach($this->form_validation->error_array() as $key => $error) {
         $this->response(['status'=>FALSE,'response'=>$error],REST_Controller::HTTP_OK);
@@ -44,15 +43,19 @@ class User extends REST_Controller {
     }
   }
   public function RegisterUser($params){
-    $user['name'] = $params['name'];
-    $user['mobile'] = $params['mobile'];
-    $user['password'] = md5($params['password']);
-    $user['email'] = $params['email'];
-    $user['created_date'] = date('Y-m-d h:i:s');
-    $user['status'] = 1;
-    $user['token'] = $this->Common_model->generateToken();
+    if($this->UserModel->DoesEmailExists($params['Email']))
+    {
+      $this->response(['status'=>FALSE,'response'=>'Email already exists.'],REST_Controller::HTTP_OK);
+    }
+    $user['Name'] = $params['Name'];
+    $user['Mobile'] = $params['Mobile'];
+    $user['Password'] = md5($params['Password']);
+    $user['Email'] = $params['Email'];
+    $user['CreatedDate'] = date('Y-m-d H:i:s');
+    $user['IsDeleted'] = 0;
+    $user['Token'] = $this->CommonModel->generateToken();
 
-    if ($this->User_model->RegisterUser($user)) {
+    if ($this->UserModel->RegisterUser($user)) {
       $this->response(['status'=>TRUE,'response'=>'User Registered successfully.'],REST_Controller::HTTP_OK);
     }
     else{
@@ -79,7 +82,7 @@ class User extends REST_Controller {
   }
   public function AuthenticateUser($params){
     $params['password'] = md5($params['password']);
-    $data = $this->User_model->AuthenticateUser($params);
+    $data = $this->UserModel->AuthenticateUser($params);
     if ($data['user']) {
       if(!$data['user']['token']){
         $data['user']['token'] = $this->Common_model->update_token($data['user']['id']);
@@ -125,7 +128,7 @@ class User extends REST_Controller {
     }
   }
   public function users($params){
-    $data['users'] = $this->User_model->users($params);
+    $data['users'] = $this->UserModel->users($params);
     if($data['users']) {
       $this->response(['status'=>TRUE,'response'=>$data],REST_Controller::HTTP_OK);
     }
@@ -133,5 +136,35 @@ class User extends REST_Controller {
       $this->response(['status'=>FALSE,'error'=>'sorry no users found.'],REST_Controller::HTTP_OK);
     }
   }
+
+  // Verify mobile number
+  public function IsMobileExists_post() {
+    $this->IsMobileExists($this->post());
+  }
+  public function IsMobileExists_validator($params) {
+    $this->form_validation->set_data($params);
+    $this->form_validation->set_rules('mobile', 'Mobile','trim|required|exact_length[10]|',array('exact_length'=>'mobile number must be 10 digits long'));
+    if ($this->form_validation->run() == FALSE){
+      foreach($this->form_validation->error_array() as $key => $error) {
+        $this->response(['status'=>FALSE,'response'=>$error],REST_Controller::HTTP_OK);
+      }
+    }
+    else{
+      $this->IsMobileExists($params);
+    }
+  }
+  public function IsMobileExists($params){
+    $mobile = $params['Mobile'];
+     
+
+    if ($this->UserModel->IsMobileExists($mobile)) {
+      $this->response(['status'=>FALSE,'response'=>'Mobile Number Already Exists.'],REST_Controller::HTTP_OK);
+    }
+    else{
+      $result['VerificationCode'] = $this->UserModel->InsertVerificationCode($mobile);
+      $this->response(['status'=>TRUE,'response'=>$result],REST_Controller::HTTP_OK);
+    }
+  }
+
 
 }

@@ -1,5 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-class User_model extends CI_Model {
+class UserModel extends CI_Model {
   public function __construct() {
     $this->load->database();
     $this->load->helper('string');
@@ -35,6 +35,30 @@ class User_model extends CI_Model {
       return $qry->row_array()['id'];
     }
     return FALSE;
+  }
+
+  //Is mobile number exists
+  public function IsMobileExists($mobile)
+  {
+      $this->db->select('mobile')->where('mobile',$mobile)->from('user');
+      $qry = $this->db->get();
+      if($qry->num_rows()>0)return true;
+      else return false;
+  }
+  public function DoesEmailExists($email)
+  {
+    $this->db->select('Email')->where('Email', $email)->from('user');
+    $qry = $this->db->get();
+    if($qry->num_rows()>0)return true;
+    else return false; 
+  }
+  public function InsertVerificationCode($mobile)
+  {
+    $data['mobile'] = $mobile;
+    $data['code'] = mt_rand(100000, 999999);
+    $data['expirydate'] = date("Y-m-d H:i:s", strtotime("+1 hour"));
+    $this->db->insert('verificationcode',$data);
+    return $data['code'];
   }
   //Get users
   public function users($params){

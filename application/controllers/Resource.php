@@ -5,8 +5,8 @@ require APPPATH . 'libraries/REST_Controller.php';
 class Resource extends REST_Controller {
 	public function __construct() {
 		parent::__construct();
-    $this->load->model('Resource_model');
-    $this->load->model('Common_model');
+    $this->load->model('ResourceModel');
+    $this->load->model('CommonModel');
     $this->load->library('form_validation');
     $this->load->helper('url');
 	}
@@ -51,7 +51,7 @@ class Resource extends REST_Controller {
     }
   }
   public function resources($params){
-    $data['resources'] = $this->Resource_model->resources($params);
+    $data['resources'] = $this->ResourceModel->resources($params);
     if($data['resources']) {
       $this->response(['status'=>TRUE,'response'=>$data],REST_Controller::HTTP_OK);
     }

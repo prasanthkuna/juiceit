@@ -1,5 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-class Bug_model extends CI_Model {
+class BugModel extends CI_Model {
   public function __construct() {
     $this->load->database();
     $this->load->helper('string');
@@ -22,11 +22,24 @@ class Bug_model extends CI_Model {
     return FALSE;
   }
 
-  public function GetUserPreferences($user_id){
-    $qry = $this->db->select('preference')->where('user_id',$user_id)->get('preference');
+  public function GetUserPreferences($userId){
+    $conditions = array('preference.UserId'=>$userId , 'preference.IsActive'=>1);
+    $qry = $this->db->select('bug.Id,bug.Name, bug.Description')->from('bug')
+    ->join('preference','bug.Id = preference.bugId')
+    ->where($conditions)->get();
     if( $qry->num_rows()>0 ) {
-      return $qry->row_array()['preference'];
+      return $qry->result_Array();
     }
-    return FALSE;
+    return NULL;
+  }
+  public function SetUserPrefernce($preferences)
+  {
+    $qry = $this->db->insert_batch('preference',$preferences);
+    return true;
+  }
+  public function SetBugToInActive($userId,$bugIds)
+  { 
+    $qry = $this->db->set('IsActive',0)->where('UserId',$userId)->where_in('BugId', $bugIds)->update('preference');
+    
   }
 }

@@ -2,10 +2,10 @@
 	exit('No direct script access allowed');
 }
 require APPPATH . 'libraries/REST_Controller.php';
-class Payment extends REST_Controller {
+class Location extends REST_Controller {
 	public function __construct() {
 		parent::__construct();
-    $this->load->model('PaymentModel');
+    $this->load->model('LocationModel');
     $this->load->model('CommonModel');
     $this->load->library('form_validation');
     $this->load->helper('url');
@@ -22,17 +22,19 @@ class Payment extends REST_Controller {
     var_dump(validation_errors());
     //$this->response(['status'=>FALSE,'error'=>'Invalid method'],REST_Controller::HTTP_OK);
   }
-  public function GetPaymentModes_get(){
-    $this->GetPaymentModes($this->get());
+  public function GetNearestStalls_get()
+  {
+    $this->GetNearestStalls($this->get());
   }
-
-  public function GetPaymentModes(){
-    $data['Data'] = $this->PaymentModel->GetPaymentModes();
+  public function GetNearestStalls()
+  {
+    $data['Data'] = $this->LocationModel->GetNearestStalls();
     if($data['Data']) {
       $this->response(['status'=>TRUE,'response'=>$data],REST_Controller::HTTP_OK);
     }
     else{
       $this->response(['status'=>FALSE,'error'=>'sorry no stalls found.'],REST_Controller::HTTP_OK);
     }
+
   }
 }
