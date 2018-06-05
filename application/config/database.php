@@ -75,9 +75,9 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'ec2-54-213-118-72.us-west-2.compute.amazonaws.com',
-	'username' => 'root',
-	'password' => 'moksha',
+	'hostname' => 'ec2-52-37-44-98.us-west-2.compute.amazonaws.com',
+	'username' => 'ec2-user',
+	'password' => 'juiceaws',
 	'database' => 'juiceit',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',

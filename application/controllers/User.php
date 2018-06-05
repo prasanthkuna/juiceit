@@ -30,7 +30,7 @@ class User extends REST_Controller {
   public function RegisterUser_validator($params) {
     $this->form_validation->set_data($params);
     $this->form_validation->set_rules('Name', 'Name','trim|required');
-    $this->form_validation->set_rules('Mobile', 'Mobile','trim|required|is_natural_no_zero|exact_length[10]',array('is_natural_no_zero'=>'Mobile number must have digits only','exact_length'=>'mobile number must be 10 digits long'));
+    $this->form_validation->set_rules('Mobile', 'Mobile','trim|required|regex_match[/^[1-9][0-9]{9}$/]',array('regex_match'=>'mobile number must be 10 numeric digits long'));
     $this->form_validation->set_rules('Password', 'Password','trim|required');
     $this->form_validation->set_rules('Email', 'Email','trim|required|valid_email');
     if ($this->form_validation->run() == FALSE){
@@ -69,7 +69,7 @@ class User extends REST_Controller {
   }
   public function AuthenticateUser_validator($params){
     $this->form_validation->set_data($params);
-    $this->form_validation->set_rules('mobile', 'mobile','trim|required|is_natural_no_zero|exact_length[10]',array('is_natural_no_zero'=>'Mobile number must have digits only','exact_length'=>'mobile number must be 10 digits long'));
+    $this->form_validation->set_rules('Mobile', 'Mobile','trim|required|regex_match[/^[1-9][0-9]{9}$/]',array('regex_match'=>'mobile number must be 10 numeric digits long'));
     $this->form_validation->set_rules('password', 'password','trim|required');
     if ($this->form_validation->run() == FALSE){
       foreach($this->form_validation->error_array() as $key => $error) {

@@ -65,6 +65,10 @@ class Bug extends REST_Controller
     {
         $this->SetUserPreference($this->post());
     }
+    public function SetUserPreference_validator()
+    {
+      
+    }
     public function SetUserPreference($params)
     {
 
