@@ -52,6 +52,13 @@ class UserModel extends CI_Model {
     if($qry->num_rows()>0)return true;
     else return false; 
   }
+  public function DoesEmailAndMobileExists($email, $mobile)
+  {
+    $this->db->select('*')->where('Email', $email)->where('mobile', $mobile)->from('user');
+    $qry = $this->db->get();
+    if($qry->num_rows()>0)return true;
+    else return false; 
+  }
   public function InsertVerificationCode($mobile)
   {
     $data['mobile'] = $mobile;

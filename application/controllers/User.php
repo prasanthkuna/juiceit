@@ -48,8 +48,8 @@ class User extends REST_Controller
     }
     public function RegisterUser($params)
     {
-        if ($this->UserModel->DoesEmailExists($params['Email'])) {
-            $this->response(['status' => false, 'response' => 'Email already exists.'], REST_Controller::HTTP_OK);
+        if ($this->UserModel->DoesEmailAndMobileExists($params['Email'],$params['Mobile'])) {
+            $this->response(['status' => false, 'response' => 'Email or mobile already exists.'], REST_Controller::HTTP_OK);
         }
         $user['Name'] = $params['Name'];
         $user['Mobile'] = $params['Mobile'];
@@ -60,9 +60,12 @@ class User extends REST_Controller
         $user['Token'] = $this->CommonModel->generateToken();
 
         if ($this->UserModel->RegisterUser($user)) {
-            $this->response(['status' => true, 'response' => 'User Registered successfully.'], REST_Controller::HTTP_OK);
+            $result['Message'] = 'User Registered successfully.';
+            $result['Token'] = $user['Token'];
+            $this->response(['status' => true, 'response' => $result], REST_Controller::HTTP_OK);
         } else {
-            $this->response(['status' => false, 'response' => 'Sorry! User not Registered.'], REST_Controller::HTTP_OK);
+            $result['Message'] = 'Sorry! User not Registered.';
+            $this->response(['status' => false, 'response' => $result], REST_Controller::HTTP_OK);
         }
     }
 
@@ -159,7 +162,7 @@ class User extends REST_Controller
     }
     public function IsMobileExists($params)
     {
-        $mobile = $params['Mobile'];
+        $mobile = $params['mobile'];
 
         if ($this->UserModel->IsMobileExists($mobile)) {
             $this->response(['status' => false, 'response' => 'Mobile Number Already Exists.'], REST_Controller::HTTP_OK);
